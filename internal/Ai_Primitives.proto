@@ -1,0 +1,8 @@
+package ai.kernel;
+
+import "host/Ai.proto";
+
+message AiMessage {
+	required string          host_id = 1;
+	required proto.AiMessage proto   = 2;
+}

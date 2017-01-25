@@ -1,0 +1,18 @@
+package ai.proto;
+
+// Код отчета о выполнении
+enum ReportCode {
+	DONE                               =   0;    // Выполнено успешно
+	ERROR                              =   1;    // Во время выполнения произошла ошибка
+
+	ERR_PROTOCOL_VERSION_MISMATCH    = 100;      // Несовпадение версий протокола
+	ERR_UNSUPPORTED_PROTOCOL_VERSION = 101;      // Не поддерживаемая версия протокола
+	ERR_PARAMETERS_NOT_APPLIED       = 102;      // Параметры не были установлены
+	ERR_STATE_NOT_APPLIED            = 103;      // Состояние модуля не было установлено
+}
+
+// Отчет о выполнении
+message Report {
+	required ReportCode code           = 1 [default = DONE];  // Действие завершилось успешно, если code == DONE
+	optional string     description    = 2;                   // Детальный отчет о выполении. При ошибках, содержит подробное описание ошибки. Может быть пустым, если code == DONE
+}

@@ -1,0 +1,42 @@
+package ai.proto;
+
+import "host/Ai_Control.proto";
+import "host/Ai_Handshake.proto";
+import "host/Ai_PostParameters.proto";
+import "host/Ai_PostState.proto";
+import "host/Ai_Report.proto";
+
+message AiMessage {
+//    | Тип сообщения                                                         | Описание                                | Направления отправки сообщения |
+	enum Type {
+		HANDSHAKE_REQUEST                                               =  10; // Запрос на установление соединения      [HOST  -> INTEGRATOR]
+		HANDSHAKE_RESPONSE                                              =  11; // Ответ на HANDSHAKE_REQUEST             [HOST <-  INTEGRATOR]
+		SET_PARAMETERS_REQUEST                                          =  20; // Запрос на установку параметров поста   [HOST <-> INTEGRATOR]
+		SET_PARAMETERS_RESPONSE                                         =  21; // Ответ на SET_PARAMETERS_REQUEST        [HOST <-> INTEGRATOR]
+		SET_STATE_REQUEST                                               =  30; // Запрос на установку состояния поста    [HOST  -> INTEGRATOR]
+		SET_STATE_RESPONSE                                              =  31; // Ответ на SET_STATE_REQUEST             [HOST <-  INTEGRATOR]
+		SET_WORK_MODE_REQUEST                                           =  40; // Запрос на установку режима работы      [HOST <-  INTEGRATOR]
+		SET_WORK_MODE_RESPONSE                                          =  41; // Ответ на SET_WORK_MODE_REQUEST         [HOST  -> INTEGRATOR]
+		CONTROL_ACTION_REQUEST                                          =  50; // Управляющее воздействие от Интегратора [HOST <-  INTEGRATOR]
+		CONTROL_ACTION_RESPONSE                                         =  51; // Ответ на CONTROL_ACTION_REQUEST        [HOST  -> INTEGRATOR]
+	}
+	
+	required Type type                                                  =   1;
+	required uint32 id                                                  =   2;  // Ссылочный идентификатор запроса/ответа (id ответа должно быть равно id присланного запроса)
+
+	optional HandshakeRequest  handshake_request                        =  10;  // HANDSHAKE_REQUEST
+	optional HandshakeResponse handshake_response                       =  11;  // HANDSHAKE_RESPONSE
+
+	optional SetParametersRequest  set_parameters_request               =  20;  // SET_PARAMETERS_REQUEST
+	optional SetParametersResponse set_parameters_response              =  21;  // SET_PARAMETERS_RESPONSE
+
+	optional SetPostStateRequest  set_state_request                     =  30;  // SET_STATE_REQUEST
+	optional SetPostStateResponse set_state_response                    =  31;  // SET_STATE_RESPONSE
+
+	optional SetWorkModeRequest  set_work_mode_request                  =  40;  // SET_WORK_MODE_REQUEST
+	optional SetWorkModeResponse set_work_mode_response                 =  41;  // SET_WORK_MODE_RESPONSE
+
+	optional ControlActionRequest  control_action_request               =  50;  // CONTROL_ACTION_REQUEST
+	optional ControlActionResponse control_action_response              =  51;  // CONTROL_ACTION_RESPONSE
+
+}

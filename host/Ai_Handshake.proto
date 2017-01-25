@@ -1,0 +1,35 @@
+package ai.proto;
+
+import "host/Ai_Report.proto";
+
+// Версия ПО
+message SoftwareVersion {
+	// Текущая версия протокола
+	enum ProtocolCurrentVersion {
+		CURRENT = 2; // Текущая версия протокола
+	}
+
+	// Минимально поддерживаемая версия протокола
+	enum ProtocolSupportedVersion {
+		MIN = 1; // Минимальная поддерживаемая версия
+	}
+
+	// версия протокола
+	required uint32 protocol_version_current            = 1;
+	required uint32 protocol_version_min_supported      = 2;
+
+	required string software_version                    = 11;
+	required string build_date_time                     = 12;
+}
+
+// Запрос на установление соеденения. Отправляется хостом после установления соедининия через сокет
+message HandshakeRequest {
+	required string          host_id      = 1;        // Идентификатор хоста из файла конфигурации запускаемого модуля
+	required SoftwareVersion host_version = 2;        // Версия ПО хоста
+}
+
+// Ответ на установление соеденения
+message HandshakeResponse {
+	required Report          report            = 1; // Отчет о доставке
+	required SoftwareVersion integrator_version = 2; // Версия ПО Интегратора
+}

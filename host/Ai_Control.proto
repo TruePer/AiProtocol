@@ -1,0 +1,26 @@
+package ai.proto;
+
+import "host/Ai_Report.proto";
+
+// Управляющее воздействие от Интегратора
+message ControlAction {
+	enum Type {
+		CA_KILL_PROGRAM   = 1;  // Завершить работу модуля
+		CA_RAISE_WINDOW   = 2;  // Показать рабочее окно модуля поверх всех окон
+		CA_START_WORK     = 3;  // Запустить работу модуля
+		CA_STOP_WORK      = 4;  // Остановить работу модуля
+	}
+
+	required Type     type         = 1; // Тип управляющего воздействия
+	required string   card_id      = 2; // Идентификатор карты, с которой было отправлено управлюящее воздействие
+}
+
+// Отправка управляющего воздействия
+message ControlActionRequest {
+	required ControlAction action                = 1; // Управляющее воздействие
+}
+
+// Ответ на управляющее воздействие
+message ControlActionResponse {
+	required Report        report                = 1; // Отчет о выполнении
+}

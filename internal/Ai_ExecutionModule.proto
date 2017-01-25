@@ -1,0 +1,72 @@
+package ai.kernel;
+
+import "host/Ai_PostState.proto";
+import "host/Ai_PostParameters.proto";
+
+// Параметры поста
+message ExecutionModule {
+
+	// Параметры запуска
+	message LaunchParameters {
+		required string path_to_executable    = 1; // Путь в файловой системе к исполняемому файлу
+		required string command_options       = 2; // Параметры запуска
+		required string work_directory        = 3; // Робочая директория
+	}
+	
+	message TimingParameters {
+		required uint32 module_launch_delay_sec = 1 [default = 10]; // Время, которое отводится модулю на запуск и на установление соединения с Интегратором
+		                                                            // Если по истечении launch_delay_sec соединение не установлено, то считается, что запуск модуля совершен неудачно, о чем сообщаяется оператору
+		required uint32 status_update_sec       = 2 [default = 5];  // Интервал обновления статуса поста. Если по истечении status_update_sec статус поста не получен, считается, что пост работает некорректно
+		                                                            // Т.е. для корректной работы с Интегратором, запускаемому модулю необходимо обновлять статус поста не реже чем status_update_sec, даже если изменений не было
+		required uint32 launch_interval_sec     = 3 [default = 0];  // Между запускам процессов из launch_paramerers проходит соответствующий временной интервал
+	}
+
+	// Доступные цвета фона карточки
+	enum CardBgColor {
+		BG_UNKNOWN   =  1;
+		BG_RED       =  2;
+		BG_GREEN     =  3;
+		BG_BLUE      =  4;
+		BG_LIGHTBLUE =  5;
+		BG_YELLOW    =  6;
+		BG_PURPLE    =  7;
+		BG_CYAN      =  8;
+		BG_ORANGE    =  9;
+		BG_TEAL      = 10;
+		BG_INDIGO    = 11;
+		BG_GREY      = 12;
+		BG_BLUEGREY  = 13;
+	}
+
+	// Параметры карточки поста
+	message Card {
+		required string           id                = 1; // (регистр игнорируется)
+		required proto.StateType  type              = 2;
+		required CardBgColor      bg_color          = 3;
+		optional proto.PostState  state             = 4;
+		optional uint64           last_update_state = 5; // Время последнего обновления состояния (в Unix Timestamp)
+	}
+
+	// Параметры режима работы
+	message WorkMode {
+		required string           id                = 1; // (регистр игнорируется)
+		required string           name              = 2;
+	}
+
+	// Параметры графического файла для использования в качестве настраиваемой иконки статуса
+	message StatusFile {
+		required string           id                = 1; // (регистр игнорируется)
+		required string           path              = 2;
+	}
+
+	required string               name              =  1;                    // Название поста
+	required string               id                =  2;                    // Идентификатор поста (регистр игнорируется)
+	required bool                 is_connected      =  3 [default = false];  // Состояние подключения к Интегратору
+	repeated LaunchParameters     launch_paramerers =  4;                    // Параметры запуска поста
+	optional TimingParameters     timing_parameters =  5;                    // Параметры таймингов;
+	repeated Card                 cards             =  6;                    // Список карточек поста, которые отображаются на ГИП Интегратора
+	repeated WorkMode             work_modes        =  7;                    // Список поддерживаемых режимов работы
+	repeated StatusFile           status_files      =  8;                    // Список дополнительных статусных иконок
+	optional proto.PostParameters parameters        =  9;                    // Параметры поста
+}
+

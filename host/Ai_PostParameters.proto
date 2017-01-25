@@ -1,0 +1,110 @@
+package ai.proto;
+
+import "host/Ai_Report.proto";
+
+// Параметр "Флажок"
+message CheckBoxParameter {
+	required bool   checked = 1;
+}
+
+// Параметр "Однострочное окно редактирования"
+message LineEditParameter {
+	enum UiType {
+		SIGNED_INT    = 1;
+		UNSIGNED_INT  = 2;
+		SIGNED_DOUBLE = 3;
+		STRING_VALUE  = 4;
+	}
+
+	required UiType ui_type       =  1;                 // Тип отображения на UI
+	optional int64  signed_int    =  2;                 // Знаковое целое число
+	optional uint64 unsigned_int  =  3;                 // Беззнаковое целое число
+	optional double signed_double =  4;                 // Знаковое число с плавающей точкой
+	optional string string_value  =  5;                 // Строковое значние
+	optional uint32 max_symbols   =  6 [default = 100]; // Максимальное количество символов ввода
+}
+
+// Параметр "Выбор одного значения из списка"
+message SelectListParameter {
+	enum UiType {
+		COMBO_BOX     = 1;
+		RADIO_BUTTONS = 2;
+	}
+
+	required UiType ui_type       =  1; // Тип отображения на UI
+	repeated string values        =  2; // Список значений для выбора
+	required int32  current_index =  3; // Индекс текущего выбранного элемента (от 0 до values_size()-1). Если (current_index < 0 || current_index >= values_size()), текущий элемент пуст (не выбран)
+}
+
+// Параметр "Значение из интервала"
+message ValueFromIntervalParameter {
+	enum UiType {
+		SLIDER     = 1;
+		SPIN_BOX   = 2;
+	}
+
+	required UiType ui_type       =  1;                  // Тип отображения на UI
+	required int32  min_value     =  2 [default = 0];    // Минимально возможное значение
+	required int32  max_value     =  3 [default = 100];  // Максимально возможное значение
+	required uint32 step          =  4 [default = 1];    // Шаг изменения значения
+	required int32  current_value =  5;                  // Текущее значение
+}
+
+// Параметр поста
+message Parameter {
+	enum Type {
+		CHECK_BOX            =  1;
+		LINE_EDIT            =  2;
+		SELECT_LIST          =  3;
+		VALUE_FROM_INTERVAL  =  4;
+	}
+
+	required Type                       type                = 1; // Тип параметра
+	required string                     id                  = 2; // Идентификатор параметра (должен быть уникальным пределах группы параметров)
+	required string                     description         = 3; // Описание параметра для отображения на UI. Используется в качестве всплывающей подсказки
+	optional string                     name                = 4; // Имя параметра для отображения на UI. Если не задано - без имени
+	optional CheckBoxParameter          check_box           = 5; // Параметр "Флажок"
+	optional LineEditParameter          line_edit           = 6; // Параметр "Однострочное окно редактирования"
+	optional SelectListParameter        select_list         = 7; // Параметр "Выбор из списка"
+	optional ValueFromIntervalParameter value_from_interval = 8; // Параметр "Значение из интервала"
+}
+
+// Группа параметров
+message GroupParameter {
+	required string    name       = 1; // Название группы параметров
+	repeated Parameter parameters = 2; // Список параметров
+	optional string    id         = 3; // Идентификатор группы
+}
+
+// Список параметров поста
+message PostParameters {
+	repeated GroupParameter groups = 1; // Если в списке только одна группа, то ее название игнорируется и не выводится на UI
+}
+
+// Установка параметров поста
+// При передаче HOST->INTEGRATOR: Задаются начальные значения параметров или изменения значений параметров в процессе работы поста
+// При передаче INTEGRATOR->HOST: Задаются измененые оператором значения параметров, которые должны быть установлены на посте
+message SetParametersRequest {
+	required PostParameters parameters = 1;
+}
+
+// Ответ на установку параметров поста. Возможны три варианта:
+// 1. Если report.code() == DONE, значит параметры были успешно установлены
+// 2. Если report.code() != DONE и parameters не заданы, значит параметры не были установлены и их значения остались прежними
+// 3. Если report.code() != DONE и parameters заданы, начит параметры были установлены частично, а их валидные значения содержатся в parameters
+message SetParametersResponse {
+	required Report         report     = 1;
+	optional PostParameters parameters = 2;
+}
+
+// Установка режима работы поста
+message SetWorkModeRequest {
+	required string work_mode_id = 1; // Идентификатор режима работы, который нужно установить на посте
+	optional string card_id      = 2; // Идентификатор карты (Если отправляется от Интегратора, то означает id карты, с которой отправлена команда. Если отправляется от хоста, то означает на какой карточке надо установить режим, если не задано, режим устанавливается на всех карточках)
+}
+
+// Ответ на установку режима работы поста
+message SetWorkModeResponse {
+	required string work_mode_id = 1; // Установленный режим работы. Если report.code() == DONE, должен быть равен work_mode_id из request
+	required Report report       = 2; // Отчет о выполении
+}

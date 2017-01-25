@@ -1,0 +1,33 @@
+package ai.kernel;
+
+import "internal/Ai_ExecutionModule.proto";
+
+message ModuleGroup {
+	optional string name                       = 1;
+	repeated ExecutionModule execution_modules = 2;
+}
+
+message WorkStation {
+	required string      name          = 1;
+	repeated ModuleGroup module_groups = 2;
+}
+
+message ConnectionOptions {
+	enum ConnectionType {
+		CT_TCP = 1;
+	}
+
+	message TcpConnection {
+		required string ip_address = 1;
+		required uint32 port    = 2 [default = 50200];
+	}
+
+	required ConnectionType type = 1;
+	optional TcpConnection  tcp  = 2;
+}
+
+message IntegratorOptions {
+	required ConnectionOptions connection    = 1;
+	repeated WorkStation       work_stations = 2;
+	optional string            name          = 3;
+}
